@@ -22,10 +22,10 @@ class ICMPPing extends q.DesktopApp {
 		const $this = this;
 		return $this.getPingAddress()
 			.then(address => $this.ping(address))
-			.then(avgResponseTime => ICMPPing.buildSignal($this.config.pingAddress, avgResponseTime, $this.getColor(avgResponseTime)))
+			.then(avgResponseTime => ICMPPing.buildSignal($this.config.pingAddress, $this.getColor(avgResponseTime), avgResponseTime))
 			.catch(err => {
-				logger.warn(err);
-				ICMPPing.buildSignal($this.config.pingAddress, ICMPPingDefaults.FailureColor, err);
+				logger.error(`Error while pinging ${$this.config.pingAddress}: ${err}`);
+				ICMPPing.buildSignal($this.config.pingAddress, ICMPPingDefaults.FailureColor, null, err);
 			});
 	}
 
@@ -35,7 +35,7 @@ class ICMPPing extends q.DesktopApp {
 			.then(address => $this.ping(address, 1))
 			.then(data => logger.info('Configuration updated'))
 			.catch(err => {
-				logger.warn(`Error while applying configuration: ${err}`);
+				logger.error(`Error while applying configuration: ${err}`);
 				return false;
 			});
 	}
@@ -100,20 +100,33 @@ class ICMPPing extends q.DesktopApp {
 				let pingTimes = [], times = stdout.match(/time=\d+(\.\d+)*/g);
 				times.forEach((el) => pingTimes.push(el.replace('time=', '')));
 				let pingAverage = pingTimes.reduce((a, b) => JSON.parse(a) + JSON.parse(b), 0) / pingTimes.length;
+				if (!pingAverage)
+					return reject(`Unable to calculate ping due to invalid ping time data: ${times.replace(/(?:\r\n|\r|\n)/g, ' ')}`);
 				logger.info(`Average response time for ${address} is ${pingAverage.toFixed(2)}ms`)
 				return resolve(pingAverage);
 			});
 		});
 	}
 
-	static buildSignal(address, avgResponseTime, color) {
-		return new q.Signal({
-			points: [[new q.Point(color)]],
-				name: `ICMP Ping`,
-				message: `Average response time for ${address}: ${avgResponseTime.toFixed(2)}ms`
+	static buildSignal(address, color, avgResponseTime, err) {
+		if (!!err){
+			return new q.Signal({
+				points: [[new q.Point(color)]],
+				name: 'ICMP Ping',
+				message: `Error while pinging ${address}`,
+				action: 'ERROR',
+				errors: [
+					err
+				]
 			});
 		}
+		return new q.Signal({
+			points: [[new q.Point(color)]],
+			name: 'ICMP Ping',
+			message: `Average response time for ${address}: ${avgResponseTime.toFixed(2)}ms`
+		});
 	}
+}
 
 module.exports = {
 	ICMPPing: ICMPPing
