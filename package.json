@@ -3,7 +3,7 @@
   "displayName": "ICMP Ping",
   "version": "1.1.0",
   "description": "Displays network latency as a color gradient",
-  "longDescription": "Displays ICMP ping response times as a color gradient depending the rount-trip time duration",
+  "longDescription": "Displays ICMP ping response times as a color gradient depending the average round-trip time duration",
   "officialProductName": "ICMP Ping",
   "appUrl": "",
   "publisher": "Connor Kennedy",
