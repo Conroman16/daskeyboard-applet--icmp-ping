@@ -1,0 +1,74 @@
+{
+  "name": "daskeyboard-applet--icmp-ping",
+  "displayName": "ICMP Ping",
+  "version": "1.0.0",
+  "description": "Changes the key colors based on ICMP ping response time",
+  "longDescription": "Monitor your network latency",
+  "officialProductName": "ICMP Ping",
+  "appUrl": "",
+  "publisher": "Conroman16",
+  "isSingleton": false,
+  "videoUrl": "",
+  "icon": "assets/icon.png",
+  "image": "assets/q-applet-server-ping-image.png",
+  "authorName": "Conroman16",
+  "authorUrl": "https://github.com/Conroman16",
+  "issuesUrl": "https://github.com/Conroman16/daskeyboard-applet--ping-time/issues",
+  "homePageUrl": "https://github.com/Conroman16/daskeyboard-applet--ping-time",
+  "developerRepoUrl": "https://github.com/Conroman16/daskeyboard-applet--ping-time",
+  "licenseUrl": "https://opensource.org/licenses/MIT",
+  "changelogUrl": "CHANGELOG.md",
+  "readMeUrl": "README.md",
+  "readMeEndUserUrl": "README_ENDUSER.md",
+  "license": "MIT",
+  "dependencies": {
+    "daskeyboard-applet": "^2.11.4"
+  },
+  "engines": {
+    "das-keyboard-q": "3.1.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Test?  What test?  No tests here\""
+  },
+  "qConfig": {
+    "geometry": {
+      "width": 1,
+      "height": 1
+    },
+    "applet": {
+      "defaults": {}
+    },
+    "questions": [
+      {
+        "key": "pingAddress",
+        "label": "Address",
+        "help": "Address of server to ICMP ping",
+        "required": true,
+        "order": 1,
+        "controlType": "textbox"
+      },
+      {
+        "key": "pollingIntervalSeconds",
+        "label": "Polling Interval",
+        "help": "How often to ping the host (in seconds) and determine average response time. (Default: 60)",
+        "required": false,
+        "order": 2,
+        "controlType": "textbox"
+      },
+      {
+        "key": "pingCount",
+        "label": "Ping count",
+        "help": "Number of ICMP pings to send per polling session (will be averaged). (Default: 5)",
+        "required": false,
+        "order": 3,
+        "controlType": "textbox"
+      }
+    ],
+    "requirements": {
+      "applet": {
+        "pingAddress": "string"
+      }
+    }
+  }
+}
