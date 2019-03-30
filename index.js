@@ -58,25 +58,24 @@ class ICMPPing extends q.DesktopApp {
 			ICMPPingDefaults.PingCount);
 	}
 
+	getMinPing(){
+		return JSON.parse(this.config.minimumPing ?
+			this.config.minimumPing :
+			ICMPPingDefaults.MinimumPing);
+	}
+
+	getColorScalingInterval(){
+		return JSON.parse(this.config.colorScalingInterval ?
+			this.config.colorScalingInterval :
+			ICMPPingDefaults.ColorScalingInterval);
+	}
+
 	getColor(avgResponseTime) {
-		let color = '#ffffff';
-		if (avgResponseTime <= 30)
-			color = "#00ff00";
-		else if (avgResponseTime > 30 && avgResponseTime <= 50)
-			color = '#48ff00';
-		else if (avgResponseTime > 50 && avgResponseTime <= 70)
-			color = '#91ff00';
-		else if (avgResponseTime > 70 && avgResponseTime <= 90)
-			color = '#daff00';
-		else if (avgResponseTime > 90 && avgResponseTime <= 110)
-			color = '#ffad00';
-		else if (avgResponseTime > 110 && avgResponseTime <= 130)
-			color = '#ff9100';
-		else if (avgResponseTime > 130 && avgResponseTime <= 150)
-			color = '#ff4800';
-		else if (avgResponseTime > 150)
-			color = '#ff0000';
-		return color;
+		const colors = ICMPPingDefaults.LedColors;
+		const minPing = this.getMinPing();
+		const scalingInterval = this.getColorScalingInterval();
+		let arrIndx = Math.floor(Math.abs(((avgResponseTime - minPing) / scalingInterval) + 1))
+		return colors[arrIndx < colors.length ? arrIndx : colors.length - 1];
 	}
 
 	isWindows(){
