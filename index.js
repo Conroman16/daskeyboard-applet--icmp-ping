@@ -71,9 +71,8 @@ class ICMPPing extends q.DesktopApp {
 	}
 
 	getColorList(){
-		return this.config.colors ?
-			this.config.colors :
-			ICMPPingDefaults.Colors
+		return this.config.colors || ICMPPingDefaults.Colors;
+
 	}
 
 	getColor(avgResponseTime) {
