@@ -108,9 +108,9 @@ class ICMPPing extends q.DesktopApp {
 	}
 
 	static buildSignal(address, color, avgResponseTime, err) {
-		if (!!err){
+		if (!!err || !avgResponseTime){
 			return new q.Signal({
-				points: [[new q.Point(color)]],
+				points: [[new q.Point(color || ICMPPingDefaults.FailureColor)]],
 				name: 'ICMP Ping',
 				message: `Error while pinging ${address}`,
 				action: 'ERROR',
