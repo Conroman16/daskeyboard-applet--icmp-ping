@@ -5,7 +5,7 @@ const defaultPingCount = 5;
 const failColor = '#ff0000';
 const logger = q.logger;
 
-class PingTime extends q.DesktopApp {
+class ICMPPing extends q.DesktopApp {
 	constructor() {
 		super();
 		this.pollingInterval = 1000 * this.getPollingInterval();
@@ -16,42 +16,42 @@ class PingTime extends q.DesktopApp {
 		const $this = this;
 		return $this.getPingAddress()
 			.then(address => $this.ping(address))
-			.then(avgResponseTime => PingTime.buildSignal(avgResponseTime, $this.getColor(avgResponseTime)))
+			.then(avgResponseTime => ICMPPing.buildSignal(avgResponseTime, $this.getColor(avgResponseTime)))
 			.catch(err => {
 				logger.warn(err);
-				PingTime.buildSignal(failColor, err);
+				ICMPPing.buildSignal(failColor, err);
 			});
 	}
 
-    async applyConfig() {
-        const $this = this;
-        return $this.getPingAddress()
-            .then(address => PingTime.ping(address))
-            .then(data => logger.info('Configuration updated'))
-            .catch(err => {
-                logger.warn(`Error while applying configuration: ${err}`);
-                return false;
-            });
-    }
+	async applyConfig() {
+		const $this = this;
+		return $this.getPingAddress()
+			.then(address => ICMPPing.ping(address))
+			.then(data => logger.info('Configuration updated'))
+			.catch(err => {
+				logger.warn(`Error while applying configuration: ${err}`);
+				return false;
+			});
+	}
 
 
-    async getPingAddress() {
-        return this.config.pingAddress ?
-            Promise.resolve(this.config.pingAddress) :
-            Promise.reject();
-    }
+	async getPingAddress() {
+		return this.config.pingAddress ?
+			Promise.resolve(this.config.pingAddress) :
+			Promise.reject();
+	}
 
-    getPollingInterval() {
-        return JSON.parse(this.config.pollingIntervalSeconds ?
-            this.config.pollingIntervalSeconds :
-            defaultPollingIntervalSeconds);
-    }
+	getPollingInterval() {
+		return JSON.parse(this.config.pollingIntervalSeconds ?
+			this.config.pollingIntervalSeconds :
+			defaultPollingIntervalSeconds);
+	}
 
-    getPingCount(){
-    	return JSON.parse(this.config.pingCount ?
-    		this.config.pingCount :
-    		defaultPingCount);
-    }
+	getPingCount(){
+		return JSON.parse(this.config.pingCount ?
+			this.config.pingCount :
+			defaultPingCount);
+	}
 
 	getColor(avgResponseTime) {
 		let color = '#ffffff';
@@ -74,8 +74,8 @@ class PingTime extends q.DesktopApp {
 		return color;
 	}
 
-    async ping(address){
-    	let pingCount = this.getPingCount();
+	async ping(address){
+		let pingCount = this.getPingCount();
 		return new Promise((resolve, reject) => {
 			// childprocess.exec(`ping ${address} -c ${pingCount}|awk '{print $8}'|head -n ${pingCount + 1}|tail -n ${pingCount}|sed 's/time=//g'`, (err, stdout, stderr) => {
 			childprocess.exec(`ping ${address} -c ${pingCount}`, (err, stdout, stderr) => {
@@ -92,19 +92,17 @@ class PingTime extends q.DesktopApp {
 		});
 	}
 
-    static buildSignal(avgResponseTime, color) {
-        return new q.Signal({
-            points: [
-                [new q.Point(color)]
-            ],
-            name: `ICMP Ping`,
-            message: `Average response time: ${avgResponseTime.toFixed(2)}ms`
-        });
-    }
-}
+	static buildSignal(avgResponseTime, color) {
+		return new q.Signal({
+			points: [[new q.Point(color)]],
+				name: `ICMP Ping`,
+				message: `Average response time: ${avgResponseTime.toFixed(2)}ms`
+			});
+		}
+	}
 
 module.exports = {
-  PingTime: PingTime
+	ICMPPing: ICMPPing
 };
 
-const pingTime = new PingTime();
+const icmpPing = new ICMPPing();
