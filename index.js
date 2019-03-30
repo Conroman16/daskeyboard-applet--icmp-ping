@@ -34,7 +34,6 @@ class ICMPPing extends q.DesktopApp {
 			});
 	}
 
-
 	async getPingAddress() {
 		return this.config.pingAddress ?
 			Promise.resolve(this.config.pingAddress) :
