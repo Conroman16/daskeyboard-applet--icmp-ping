@@ -50,7 +50,7 @@
       },
       {
         "key": "pollingIntervalSeconds",
-        "label": "Polling Interval",
+        "label": "Polling Interval (seconds)",
         "help": "How often to ping the host (in seconds) and determine average response time. (Default: 60)",
         "required": false,
         "order": 2,
@@ -58,10 +58,26 @@
       },
       {
         "key": "pingCount",
-        "label": "Ping count",
+        "label": "Ping Count",
         "help": "Number of ICMP pings to send per polling session (will be averaged). (Default: 5)",
         "required": false,
         "order": 3,
+        "controlType": "textbox"
+      },
+      {
+        "key": "minimumPing",
+        "label": "Low Threshold (milliseconds)",
+        "help": "Everything below this threshold all times will be considered green. (Default: 30ms)",
+        "required": false,
+        "order": 4,
+        "controlType": "textbox"
+      },
+      {
+        "key": "colorScalingInterval",
+        "label": "Color Interval (miliseconds)",
+        "help": "Number milliseconds between each color. (Default: 30ms)",
+        "required": false,
+        "order": 5,
         "controlType": "textbox"
       }
     ],
