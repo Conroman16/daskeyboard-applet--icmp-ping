@@ -55,22 +55,22 @@ class ICMPPing extends q.DesktopApp {
 
 	getColor(avgResponseTime) {
 		let color = '#ffffff';
-		if (avgResponseTime <= 10)
-			color = "#2ecc71";
-		else if (avgResponseTime > 20 && avgResponseTime <= 35)
-			color = '#27ae60';
-		else if (avgResponseTime > 35 && avgResponseTime <= 50)
-			color = '#f1c40f';
-		else if (avgResponseTime > 50 && avgResponseTime <= 65)
-			color = '#f39c12';
-		else if (avgResponseTime > 65 && avgResponseTime <= 80)
-			color = '#e67e22';
-		else if (avgResponseTime > 80 && avgResponseTime <= 95)
-			color = '#c0392b';
-		else if (avgResponseTime > 95 && avgResponseTime <= 110)
-			color = '#9b59b6';
-		else if (avgResponseTime > 110)
-			color = '#8e44ad';
+		if (avgResponseTime <= 30)
+			color = "#00ff00";
+		else if (avgResponseTime > 30 && avgResponseTime <= 50)
+			color = '#48ff00';
+		else if (avgResponseTime > 50 && avgResponseTime <= 70)
+			color = '#91ff00';
+		else if (avgResponseTime > 70 && avgResponseTime <= 90)
+			color = '#daff00';
+		else if (avgResponseTime > 90 && avgResponseTime <= 110)
+			color = '#ffad00';
+		else if (avgResponseTime > 110 && avgResponseTime <= 130)
+			color = '#ff9100';
+		else if (avgResponseTime > 130 && avgResponseTime <= 150)
+			color = '#ff4800';
+		else if (avgResponseTime > 150)
+			color = '#ff0000';
 		return color;
 	}
 
