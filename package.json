@@ -2,16 +2,16 @@
   "name": "daskeyboard-applet--icmp-ping",
   "displayName": "ICMP Ping",
   "version": "1.1.0",
-  "description": "Changes key colors based on ICMP ping response time",
-  "longDescription": "Monitor your network latency",
+  "description": "Displays network latency as a color gradient",
+  "longDescription": "Displays ICMP ping response times as a color gradient depending the rount-trip time duration",
   "officialProductName": "ICMP Ping",
   "appUrl": "",
-  "publisher": "Conroman16",
+  "publisher": "Connor Kennedy",
   "isSingleton": false,
   "videoUrl": "",
   "icon": "assets/icon.png",
   "image": "assets/dashboard_example.png",
-  "authorName": "Conroman16",
+  "authorName": "Connor Kennedy",
   "authorUrl": "https://github.com/Conroman16",
   "issuesUrl": "https://github.com/Conroman16/daskeyboard-applet--ping-time/issues",
   "homePageUrl": "https://github.com/Conroman16/daskeyboard-applet--ping-time",
@@ -51,7 +51,7 @@
       {
         "key": "pollingIntervalSeconds",
         "label": "Polling Interval (seconds)",
-        "help": "How often to ping the host (in seconds) and determine average response time. (Default: 60)",
+        "help": "How often to ping the address (in seconds) and determine average response time. (Default: 60)",
         "required": false,
         "order": 2,
         "controlType": "textbox"
@@ -59,7 +59,7 @@
       {
         "key": "pingCount",
         "label": "Ping Count",
-        "help": "Number of ICMP pings to send per polling session (will be averaged). (Default: 5)",
+        "help": "Number of pings to send per polling session (will be averaged). (Default: 5)",
         "required": false,
         "order": 3,
         "controlType": "textbox"
@@ -67,7 +67,7 @@
       {
         "key": "minimumPing",
         "label": "Low Threshold (milliseconds)",
-        "help": "Everything below this threshold all times will be considered green. (Default: 30ms)",
+        "help": "Start of gradient.  All ping times below this number will be considered green. (Default: 30ms)",
         "required": false,
         "order": 4,
         "controlType": "textbox"
@@ -75,7 +75,7 @@
       {
         "key": "colorScalingInterval",
         "label": "Color Interval (miliseconds)",
-        "help": "Number milliseconds between each color. (Default: 30ms)",
+        "help": "Number of milliseconds between each color step. (Default: 30ms)",
         "required": false,
         "order": 5,
         "controlType": "textbox"
