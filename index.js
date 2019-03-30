@@ -1,9 +1,15 @@
 const q = require('daskeyboard-applet');
 const childprocess = require('child_process');
-const defaultPollingIntervalSeconds = 60;
-const defaultPingCount = 5;
-const failColor = '#ff0000';
 const logger = q.logger;
+const ICMPPingDefaults = {
+	PollingIntervalSeconds: 60,	// Number of seconds between polling sessions
+	PingCount: 5,				// Number of pings to send per polling session
+	MinimumPing: 30,			// Threshold below which everything is considered 'green'
+	ColorScalingInterval: 30,	// Time gap in milliseconds between colors
+	FailureColor: '#ff0000',	// Default color when there has been a failure
+	LedColors: ['#00ff00', '#48ff00', '#91ff00', '#daff00',	// Supported colors IN ORDER from green to red
+				'#ffad00', '#ff9100', '#ff4800', '#ff0000']
+};
 
 class ICMPPing extends q.DesktopApp {
 	constructor() {
@@ -19,7 +25,7 @@ class ICMPPing extends q.DesktopApp {
 			.then(avgResponseTime => ICMPPing.buildSignal($this.config.pingAddress, avgResponseTime, $this.getColor(avgResponseTime)))
 			.catch(err => {
 				logger.warn(err);
-				ICMPPing.buildSignal($this.config.pingAddress, failColor, err);
+				ICMPPing.buildSignal($this.config.pingAddress, ICMPPingDefaults.FailureColor, err);
 			});
 	}
 
@@ -43,13 +49,13 @@ class ICMPPing extends q.DesktopApp {
 	getPollingIntervalSeconds() {
 		return JSON.parse(this.config.pollingIntervalSeconds ?
 			this.config.pollingIntervalSeconds :
-			defaultPollingIntervalSeconds);
+			ICMPPingDefaults.PollingIntervalSeconds);
 	}
 
 	getPingCount(){
 		return JSON.parse(this.config.pingCount ?
 			this.config.pingCount :
-			defaultPingCount);
+			ICMPPingDefaults.PingCount);
 	}
 
 	getColor(avgResponseTime) {
