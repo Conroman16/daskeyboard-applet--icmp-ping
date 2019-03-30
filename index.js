@@ -16,10 +16,10 @@ class ICMPPing extends q.DesktopApp {
 		const $this = this;
 		return $this.getPingAddress()
 			.then(address => $this.ping(address))
-			.then(avgResponseTime => ICMPPing.buildSignal(avgResponseTime, $this.getColor(avgResponseTime)))
+			.then(avgResponseTime => ICMPPing.buildSignal($this.config.pingAddress, avgResponseTime, $this.getColor(avgResponseTime)))
 			.catch(err => {
 				logger.warn(err);
-				ICMPPing.buildSignal(failColor, err);
+				ICMPPing.buildSignal($this.config.pingAddress, failColor, err);
 			});
 	}
 
@@ -74,11 +74,15 @@ class ICMPPing extends q.DesktopApp {
 		return color;
 	}
 
+	isWindows(){
+		return process.platform == 'win32';
+	}
+
 	async ping(address){
 		let pingCount = this.getPingCount();
+		let pingCountArg = this.isWindows() ? '-n' : '-c';
 		return new Promise((resolve, reject) => {
-			// childprocess.exec(`ping ${address} -c ${pingCount}|awk '{print $8}'|head -n ${pingCount + 1}|tail -n ${pingCount}|sed 's/time=//g'`, (err, stdout, stderr) => {
-			childprocess.exec(`ping ${address} -c ${pingCount}`, (err, stdout, stderr) => {
+			childprocess.exec(`ping ${address} ${pingCountArg} ${pingCount}`, (err, stdout, stderr) => {
 				if (err){
 					logger.warn(`Error while executing ping: ${err}`);
 					return reject(err);
@@ -92,11 +96,11 @@ class ICMPPing extends q.DesktopApp {
 		});
 	}
 
-	static buildSignal(avgResponseTime, color) {
+	static buildSignal(address, avgResponseTime, color) {
 		return new q.Signal({
 			points: [[new q.Point(color)]],
 				name: `ICMP Ping`,
-				message: `Average response time: ${avgResponseTime.toFixed(2)}ms`
+				message: `Average response time for ${address}: ${avgResponseTime.toFixed(2)}ms`
 			});
 		}
 	}
