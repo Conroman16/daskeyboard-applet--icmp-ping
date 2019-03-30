@@ -70,8 +70,14 @@ class ICMPPing extends q.DesktopApp {
 			ICMPPingDefaults.ColorScalingInterval);
 	}
 
+	getColorList(){
+		return this.config.colors ?
+			this.config.colors :
+			ICMPPingDefaults.Colors
+	}
+
 	getColor(avgResponseTime) {
-		const colors = ICMPPingDefaults.LedColors;
+		const colors = this.getColorList();
 		const minPing = this.getMinPing();
 		const scalingInterval = this.getColorScalingInterval();
 		let arrIndx = Math.floor(Math.abs(((avgResponseTime - minPing) / scalingInterval) + 1))

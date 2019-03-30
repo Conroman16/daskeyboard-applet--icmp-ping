@@ -79,6 +79,16 @@
         "required": false,
         "order": 5,
         "controlType": "textbox"
+      },
+      {
+        "key": "colors",
+        "label": "Colors (hex)",
+        "help": "List of colors (Default: 8-color inverse HSV gradient from #00ff00 to #ff0000)",
+        "required": false,
+        "order": 6,
+        "controlType": "textbox",
+        "isArray": true,
+        "value": ["#00ff00","#48ff00","#91ff00","#daff00","#ffad00","#ff9100","#ff4800","#ff0000"]
       }
     ],
     "requirements": {
