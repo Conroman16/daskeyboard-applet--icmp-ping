@@ -1,7 +1,7 @@
 {
   "name": "daskeyboard-applet--icmp-ping",
   "displayName": "ICMP Ping",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Changes key colors based on ICMP ping response time",
   "longDescription": "Monitor your network latency",
   "officialProductName": "ICMP Ping",
