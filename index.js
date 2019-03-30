@@ -8,7 +8,7 @@ const logger = q.logger;
 class ICMPPing extends q.DesktopApp {
 	constructor() {
 		super();
-		this.pollingInterval = 1000 * this.getPollingInterval();
+		this.pollingInterval = 1000 * this.getPollingIntervalSeconds();
 		logger.info("ICMP Ping applet initialized");
 	}
 
@@ -40,7 +40,7 @@ class ICMPPing extends q.DesktopApp {
 			Promise.reject();
 	}
 
-	getPollingInterval() {
+	getPollingIntervalSeconds() {
 		return JSON.parse(this.config.pollingIntervalSeconds ?
 			this.config.pollingIntervalSeconds :
 			defaultPollingIntervalSeconds);
