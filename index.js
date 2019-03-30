@@ -26,7 +26,7 @@ class ICMPPing extends q.DesktopApp {
 	async applyConfig() {
 		const $this = this;
 		return $this.getPingAddress()
-			.then(address => ICMPPing.ping(address))
+			.then(address => $this.ping(address, 1))
 			.then(data => logger.info('Configuration updated'))
 			.catch(err => {
 				logger.warn(`Error while applying configuration: ${err}`);
@@ -78,8 +78,8 @@ class ICMPPing extends q.DesktopApp {
 		return process.platform == 'win32';
 	}
 
-	async ping(address){
-		let pingCount = this.getPingCount();
+	async ping(address, count){
+		let pingCount = !!count ? count : this.getPingCount();
 		let pingCountArg = this.isWindows() ? '-n' : '-c';
 		return new Promise((resolve, reject) => {
 			childprocess.exec(`ping ${address} ${pingCountArg} ${pingCount}`, (err, stdout, stderr) => {
