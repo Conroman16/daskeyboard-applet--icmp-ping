@@ -6,6 +6,8 @@ to avoid having to build unmanaged code via `node-gyp`.
 
 Fully compatible with \*nix/BSD, Mac, and Windows.
 
+[GitHub repository](https://github.com/Conroman16/daskeyboard-applet--icmp-ping)
+
 ![ICMP Ping on Das Keyboard 5Q](assets/image.png "ICMP Ping Dashboard Example")
 
 ## Changelog
