@@ -25,7 +25,7 @@ class ICMPPing extends q.DesktopApp {
 			.then(avgResponseTime => ICMPPing.buildSignal($this.config.pingAddress, $this.getColor(avgResponseTime), avgResponseTime))
 			.catch(err => {
 				logger.error(`Error while pinging ${$this.config.pingAddress}: ${err}`);
-				ICMPPing.buildSignal($this.config.pingAddress, ICMPPingDefaults.FailureColor, null, err);
+				return ICMPPing.buildSignal($this.config.pingAddress, ICMPPingDefaults.FailureColor, null, err);
 			});
 	}
 
@@ -108,16 +108,8 @@ class ICMPPing extends q.DesktopApp {
 	}
 
 	static buildSignal(address, color, avgResponseTime, err) {
-		if (!!err || !avgResponseTime){
-			return new q.Signal({
-				points: [[new q.Point(color || ICMPPingDefaults.FailureColor)]],
-				name: 'ICMP Ping',
-				message: `Error while pinging ${address}`,
-				action: 'ERROR',
-				errors: [
-					err
-				]
-			});
+		if ( !(typeof err === 'undefined') || (avgResponseTime == null)){
+			return q.Signal.error([`Error while pinging ${address}`]);
 		}
 		return new q.Signal({
 			points: [[new q.Point(color)]],
