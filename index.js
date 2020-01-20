@@ -16,11 +16,11 @@ class ICMPPing extends q.DesktopApp {
 	constructor() {
 		super();
 		this.pollingInterval = 1000 * this.getPollingIntervalSeconds();
+		this.gradientArray = this.generateGradientArray();
 		logger.info("ICMP Ping applet initialized");
 	}
 
 	async run() {
-		this.generateGradientArray();
 		return this.getPingAddress()
 			.then(address => this.ping(address))
 			.then(avgResponseTime => ICMPPing.buildSignal(this.config.pingAddress, this.getColor(avgResponseTime), avgResponseTime))
@@ -79,11 +79,10 @@ class ICMPPing extends q.DesktopApp {
 	}
 
 	getColor(avgResponseTime) {
-		const colors = this.generateGradientArray();
 		const minPing = this.getMinPing();
 		const scalingInterval = this.getColorScalingInterval();
 		let arrIndx = Math.floor(Math.abs(((avgResponseTime - minPing) / scalingInterval) + 1))
-		return colors[arrIndx < colors.length ? arrIndx : colors.length - 1];
+		return this.gradientArray[arrIndx < this.gradientArray.length ? arrIndx : this.gradientArray.length - 1];
 	}
 
 	generateGradientArray(){
