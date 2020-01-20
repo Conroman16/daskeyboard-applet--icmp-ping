@@ -1,14 +1,15 @@
 const q = require('daskeyboard-applet');
 const childprocess = require('child_process');
+const tinygradient = require('tinygradient');
 const logger = q.logger;
 const ICMPPingDefaults = {
 	PollingIntervalSeconds: 60,	// Number of seconds between polling sessions
 	PingCount: 5,				// Number of pings to send per polling session
 	MinimumPing: 30,			// Threshold below which everything is considered 'green'
 	ColorScalingInterval: 30,	// Time gap in milliseconds between colors
-	FailureColor: '#ff0000',	// Default color when there has been a failure
-	LedColors: ['#00ff00', '#48ff00', '#91ff00', '#daff00',	// Supported colors IN ORDER from green to red
-				'#ffad00', '#ff9100', '#ff4800', '#ff0000']
+	GradientStops: 8,			// Default granularity of gradient to be calculated
+	SuccessColor: '#00ff00',	// Default color where an action has been successful
+	FailureColor: '#ff0000'//,	// Default color when there has been a failure
 };
 
 class ICMPPing extends q.DesktopApp {
@@ -19,20 +20,19 @@ class ICMPPing extends q.DesktopApp {
 	}
 
 	async run() {
-		const $this = this;
-		return $this.getPingAddress()
-			.then(address => $this.ping(address))
-			.then(avgResponseTime => ICMPPing.buildSignal($this.config.pingAddress, $this.getColor(avgResponseTime), avgResponseTime))
+		this.generateGradientArray();
+		return this.getPingAddress()
+			.then(address => this.ping(address))
+			.then(avgResponseTime => ICMPPing.buildSignal(this.config.pingAddress, this.getColor(avgResponseTime), avgResponseTime))
 			.catch(err => {
-				logger.error(`Error while pinging ${$this.config.pingAddress}: ${err}`);
-				return ICMPPing.buildSignal($this.config.pingAddress, ICMPPingDefaults.FailureColor, null, err);
+				logger.error(`Error while pinging ${this.config.pingAddress}: ${err}`);
+				return ICMPPing.buildSignal(this.config.pingAddress, ICMPPingDefaults.FailureColor, null, err);
 			});
 	}
 
 	async applyConfig() {
-		const $this = this;
-		return $this.getPingAddress()
-			.then(address => $this.ping(address, 1))
+		return this.getPingAddress()
+			.then(address => this.ping(address, 1))
 			.then(data => logger.info('Configuration updated'))
 			.catch(err => {
 				logger.error(`Error while applying configuration: ${err}`);
@@ -47,40 +47,57 @@ class ICMPPing extends q.DesktopApp {
 	}
 
 	getPollingIntervalSeconds() {
-		return JSON.parse(this.config.pollingIntervalSeconds ?
-			this.config.pollingIntervalSeconds :
-			ICMPPingDefaults.PollingIntervalSeconds);
+		return JSON.parse(this.config.pollingIntervalSeconds || ICMPPingDefaults.PollingIntervalSeconds);
 	}
 
 	getPingCount(){
-		return JSON.parse(this.config.pingCount ?
-			this.config.pingCount :
-			ICMPPingDefaults.PingCount);
+		return JSON.parse(this.config.pingCount || ICMPPingDefaults.PingCount);
 	}
 
 	getMinPing(){
-		return JSON.parse(this.config.minimumPing ?
-			this.config.minimumPing :
-			ICMPPingDefaults.MinimumPing);
+		return JSON.parse(this.config.minimumPing || ICMPPingDefaults.MinimumPing);
 	}
 
 	getColorScalingInterval(){
-		return JSON.parse(this.config.colorScalingInterval ?
-			this.config.colorScalingInterval :
-			ICMPPingDefaults.ColorScalingInterval);
+		return JSON.parse(this.config.colorScalingInterval || ICMPPingDefaults.ColorScalingInterval);
 	}
 
-	getColorList(){
-		return this.config.colors || ICMPPingDefaults.Colors;
+	getGradientStops(){
+		return JSON.parse(this.config.gradientStops || ICMPPingDefaults.GradientStops);
+	}
 
+	getFastColor(){
+		return this.config.fastColor || ICMPPingDefaults.SuccessColor;
+	}
+
+	getSlowColor(){
+		return this.config.slowColor || ICMPPingDefaults.FailureColor;
+	}
+
+	isXClockwiseGradient(){
+		return !!this.config.counterClockwiseGradient;
 	}
 
 	getColor(avgResponseTime) {
-		const colors = this.getColorList();
+		const colors = this.generateGradientArray();
 		const minPing = this.getMinPing();
 		const scalingInterval = this.getColorScalingInterval();
 		let arrIndx = Math.floor(Math.abs(((avgResponseTime - minPing) / scalingInterval) + 1))
 		return colors[arrIndx < colors.length ? arrIndx : colors.length - 1];
+	}
+
+	generateGradientArray(){
+		let gradient = tinygradient([ // Define a simple gradient between the two colors
+			{ color: this.getFastColor(), pos: 0 },	// Fast color first as we calculate
+			{ color: this.getSlowColor(), pos: 1 }	// from fast->slow when selecting colors
+		]);
+		// Calculate array of points on gradient for key colors and convert them to hex
+		return gradient.hsv(this.getGradientStops(), this.isXClockwiseGradient())
+			.map((el) => this.convertRgbToHex(Math.round(el._r), Math.round(el._g), Math.round(el._b)));
+	}
+
+	convertRgbToHex(r, g, b){
+		return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 	}
 
 	isWindows(){
