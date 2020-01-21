@@ -91,12 +91,7 @@ class ICMPPing extends q.DesktopApp {
 			{ color: this.getSlowColor(), pos: 1 }	// from fast->slow when selecting colors
 		]);
 		// Calculate array of points on gradient for key colors and convert them to hex
-		return gradient.hsv(this.getGradientStops(), this.isXClockwiseGradient())
-			.map((el) => this.convertRgbToHex(Math.round(el._r), Math.round(el._g), Math.round(el._b)));
-	}
-
-	convertRgbToHex(r, g, b){
-		return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+		return gradient.hsv(this.getGradientStops(), this.isXClockwiseGradient()).map((el) => el.toHexString());
 	}
 
 	isWindows(){
