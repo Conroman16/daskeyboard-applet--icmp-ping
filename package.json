@@ -1,7 +1,7 @@
 {
   "name": "daskeyboard-applet--icmp-ping",
   "displayName": "ICMP Ping",
-  "version": "1.1.1",
+  "version": "1.3",
   "description": "Displays network latency as a color gradient.",
   "longDescription": "Displays ICMP ping response times as a color gradient depending the average round-trip time duration.",
   "officialProductName": "ICMP Ping",
@@ -22,14 +22,16 @@
   "readMeEndUserUrl": "README_ENDUSER.md",
   "license": "MIT",
   "dependencies": {
-    "daskeyboard-applet": "^2.11.4"
+    "daskeyboard-applet": "^2.11.4",
+    "mocha": "^7.0.1",
+    "tinygradient": "^1.1.1"
   },
   "engines": {
     "das-keyboard-q": "3.1.0"
   },
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Test?  What test?  No tests here\""
+    "test": "mocha"
   },
   "qConfig": {
     "geometry": {
@@ -37,59 +39,98 @@
       "height": 1
     },
     "applet": {
-      "defaults": {}
+      "defaults": {
+			"fastColor": "#00ff00",
+			"slowColor": "#ff0000",
+			"counterClockwiseGradient": true,
+			"gradientStops": 8,
+			"pollingIntervalSeconds": 60,
+			"pingCount": 5,
+			"minimumPing": 30,
+			"colorScalingInterval": 30
+		}
     },
     "questions": [
       {
         "key": "pingAddress",
         "label": "Address",
         "help": "Address of server to ICMP ping",
-        "placeholder":"e.g. www.example.com",
+        "placeholder": "e.g. www.example.com",
         "required": true,
-        "order": 1,
+        "order": 10,
         "controlType": "textbox"
+      },
+      {
+        "key": "fastColor",
+        "label": "Fastest Ping Color (hex)",
+        "help": "Color indicating the slowest possible ping",
+        "required": false,
+        "order": 13,
+        "controlType": "textbox",
+        "value": "#00ff00"
+      },
+      {
+        "key": "slowColor",
+        "label": "Slowest Ping Color (hex)",
+        "help": "Color indicating the slowest possible ping",
+        "required": false,
+        "order": 14,
+        "controlType": "textbox",
+        "value": "#ff0000"
+      },
+      {
+        "key": "counterClockwiseGradient",
+        "label": "Use counterclockwise gradient calculation?",
+        "help": "Determines which direction to move around the color wheen when calculating the gradient",
+        "required": true,
+        "order": 16,
+        "controlType": "checkbox",
+        "value": true
+      },
+      {
+        "key": "gradientStops",
+        "label": "Color steps to be calculated between fastest and slowest ping",
+        "help": "Adjusts the granularity of point calculation on the gradient between the fastest and slowest ping colors (Default: 8)",
+        "required": false,
+        "order": 14,
+        "controlType": "textbox",
+        "value": 8
       },
       {
         "key": "pollingIntervalSeconds",
         "label": "Polling Interval (seconds)",
         "help": "How often to ping the address (in seconds) and determine average response time. (Default: 60)",
         "required": false,
-        "order": 2,
-        "controlType": "textbox"
+        "order": 20,
+        "controlType": "textbox",
+        "value": 60
       },
       {
         "key": "pingCount",
         "label": "Ping Count",
         "help": "Number of pings to send per polling session (will be averaged). (Default: 5)",
         "required": false,
-        "order": 3,
-        "controlType": "textbox"
+        "order": 30,
+        "controlType": "textbox",
+        "value": 5
       },
       {
         "key": "minimumPing",
         "label": "Low Threshold (milliseconds)",
         "help": "Start of gradient.  All ping times below this number will be considered green. (Default: 30ms)",
         "required": false,
-        "order": 4,
-        "controlType": "textbox"
+        "order": 40,
+        "controlType": "textbox",
+        "value": 30
       },
       {
         "key": "colorScalingInterval",
         "label": "Color Interval (miliseconds)",
         "help": "Number of milliseconds between each color step. (Default: 30ms)",
         "required": false,
-        "order": 5,
-        "controlType": "textbox"
-      },
-      {
-        "key": "colors",
-        "label": "Colors (hex)",
-        "help": "List of colors (Default: 8-color inverse HSV gradient from #00ff00 to #ff0000)",
-        "required": false,
-        "order": 6,
+        "order": 50,
         "controlType": "textbox",
-        "isArray": true,
-        "value": ["#00ff00","#48ff00","#91ff00","#daff00","#ffad00","#ff9100","#ff4800","#ff0000"]
+        "value": 30
       }
     ],
     "requirements": {
