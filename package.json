@@ -1,7 +1,7 @@
 {
   "name": "daskeyboard-applet--icmp-ping",
   "displayName": "ICMP Ping",
-  "version": "1.3",
+  "version": "2.0.0",
   "description": "Displays network latency as a color gradient.",
   "longDescription": "Displays ICMP ping response times as a color gradient depending the average round-trip time duration.",
   "officialProductName": "ICMP Ping",
