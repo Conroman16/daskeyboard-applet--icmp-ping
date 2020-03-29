@@ -41,13 +41,12 @@
     "applet": {
       "defaults": {
 			"fastColor": "#00ff00",
-			"slowColor": "#ff0000",
+			"slowColor": "#ffff00",
 			"counterClockwiseGradient": true,
-			"gradientStops": 8,
 			"pollingIntervalSeconds": 60,
 			"pingCount": 5,
 			"minimumPing": 30,
-			"colorScalingInterval": 30
+			"maximumPing": 1000
 		}
     },
     "questions": [
@@ -62,39 +61,39 @@
       },
       {
         "key": "fastColor",
-        "label": "Fastest Ping Color (hex)",
-        "help": "Color indicating the slowest possible ping",
+        "label": "Fastest Ping Color",
+        "help": "Color indicating the fastest possible ping",
         "required": false,
         "order": 13,
-        "controlType": "textbox",
+        "controlType": "color",
         "value": "#00ff00"
       },
       {
         "key": "slowColor",
-        "label": "Slowest Ping Color (hex)",
+        "label": "Slowest Ping Color",
         "help": "Color indicating the slowest possible ping",
         "required": false,
         "order": 14,
-        "controlType": "textbox",
+        "controlType": "color",
+        "value": "#ffff00"
+      },
+		{
+			"key": "failureColor",
+			"label": "Failure ping color",
+			"help": "Color indicating failure",
+			"required": false,
+			"order": 15,
+			"controlType": "color",
         "value": "#ff0000"
       },
       {
-        "key": "counterClockwiseGradient",
-        "label": "Use counterclockwise gradient calculation?",
-        "help": "Determines which direction to move around the color wheen when calculating the gradient",
+			"key": "blinkOnError",
+			"label": "Blink on error",
+			"help": "Blink button if ping error occured",
         "required": true,
         "order": 16,
         "controlType": "checkbox",
-        "value": true
-      },
-      {
-        "key": "gradientStops",
-        "label": "Color steps to be calculated between fastest and slowest ping",
-        "help": "Adjusts the granularity of point calculation on the gradient between the fastest and slowest ping colors (Default: 8)",
-        "required": false,
-        "order": 14,
-        "controlType": "textbox",
-        "value": 8
+			"value": false
       },
       {
         "key": "pollingIntervalSeconds",
@@ -118,19 +117,28 @@
         "key": "minimumPing",
         "label": "Low Threshold (milliseconds)",
         "help": "Start of gradient.  All ping times below this number will be considered green. (Default: 30ms)",
-        "required": false,
+        "required": true,
         "order": 40,
         "controlType": "textbox",
         "value": 30
       },
       {
-        "key": "colorScalingInterval",
-        "label": "Color Interval (miliseconds)",
-        "help": "Number of milliseconds between each color step. (Default: 30ms)",
-        "required": false,
+			"key": "maximumPing",
+			"label": "High Threshold (milliseconds)",
+			"help": "End of gradient.  All ping times above this number will be considered yellow. (Default: 1000ms)",
+			"required": true,
         "order": 50,
         "controlType": "textbox",
-        "value": 30
+			"value": 1000
+		},
+		{
+			"key": "useLogarithmicScale",
+			"label": "Use logarithmic scale for ping",
+			"help": "Instead of linear gradient use logarithmic scale. E.g. 30/1000 and 500ms ping, linear: 48%, logarithmic: 89%",
+			"required": true,
+			"order": 60,
+			"controlType": "checkbox",
+			"value": false
       }
     ],
     "requirements": {
