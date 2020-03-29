@@ -6,9 +6,9 @@ const ICMPPingDefaults = {
 	PollingIntervalSeconds: 60,	// Number of seconds between polling sessions
 	PingCount: 5,				// Number of pings to send per polling session
 	MinimumPing: 30,			// Threshold below which everything is considered 'green'
-	ColorScalingInterval: 30,	// Time gap in milliseconds between colors
-	GradientStops: 8,			// Default granularity of gradient to be calculated
-	SuccessColor: '#00ff00',	// Default color where an action has been successful
+	MaximumPing: 1000,      // Threshold below which everything is considered 'yellow'
+	FastColor: '#00ff00',	// Default color where an action has been successful
+	SlowColor: '#ffff00',	// Default color where an action has been successful
 	FailureColor: '#ff0000'		// Default color when there has been a failure
 };
 
@@ -20,94 +20,95 @@ class ICMPPing extends q.DesktopApp {
 	async run() {
 		return new Promise((resolve, reject) => {
 			this.ping(this.config.pingAddress)
-				.then(avgResponseTime => resolve(ICMPPing.buildSignal(this.config.pingAddress, this.getColor(avgResponseTime), avgResponseTime)))
+				.then(avgResponseTime => {
+					if ((avgResponseTime >= 0))
+						resolve(this.buildSignal(this.config.pingAddress, this.getColor(avgResponseTime), avgResponseTime));
+					else
+						resolve(this.buildSignal(this.config.pingAddress, this.config.failureColor || ICMPPingDefaults.FailureColor, avgResponseTime));
+				})
 				.catch(err => {
 					logger.error(`Error while pinging ${this.config.pingAddress}: ${err}`);
-					return reject(ICMPPing.buildSignal(this.config.pingAddress, ICMPPingDefaults.FailureColor, null, err));
+					resolve(this.buildSignal(this.config.pingAddress, this.config.failureColor || ICMPPingDefaults.FailureColor, null, err));
 				});
 		});
 	}
 
 	async applyConfig() {
 		this.pollingInterval = 1000 * this.pollingIntervalSeconds;
-		this.gradientArray = this.generateGradientArray();
+		this.gradient = tinygradient([this.config.fastColor || ICMPPingDefaults.FastColor, this.config.slowColor || ICMPPingDefaults.SlowColor]);
 	}
 
-	get pollingIntervalSeconds(){
-		return JSON.parse(this.config.pollingIntervalSeconds || ICMPPingDefaults.PollingIntervalSeconds);
+	get pollingIntervalSeconds() {
+		return (this.config.pollingIntervalSeconds || ICMPPingDefaults.PollingIntervalSeconds) * 1;
 	}
 
-	get pingCount(){
-		return JSON.parse(this.config.pingCount || ICMPPingDefaults.PingCount);
+	get pingCount() {
+		return (this.config.pingCount || ICMPPingDefaults.PingCount) * 1;
 	}
 
-	get minPing(){
-		return JSON.parse(this.config.minimumPing || ICMPPingDefaults.MinimumPing);
+	get minPing() {
+		return (this.config.minimumPing || ICMPPingDefaults.MinumumPing) * 1;
 	}
 
-	get colorScalingInterval(){
-		return JSON.parse(this.config.colorScalingInterval || ICMPPingDefaults.ColorScalingInterval);
+	get maxPing() {
+		return (this.config.maximumPing || ICMPPingDefaults.MaximumPing) * 1;
 	}
 
-	get gradientStops(){
-		return JSON.parse(this.config.gradientStops || ICMPPingDefaults.GradientStops);
-	}
-
-	get fastColor(){
-		return this.config.fastColor || ICMPPingDefaults.SuccessColor;
-	}
-
-	get slowColor(){
-		return this.config.slowColor || ICMPPingDefaults.FailureColor;
-	}
-
-	get isXClockwiseGradient(){
-		return !!this.config.counterClockwiseGradient;
-	}
-
-	get isWindows(){
-		return process.platform == 'win32';
+	get isWindows() {
+		return process.platform === 'win32';
 	}
 
 	getColor(avgResponseTime) {
-		const minPing = this.minPing;
-		const scalingInterval = this.colorScalingInterval;
-		let arrIndx = Math.floor(Math.abs(((avgResponseTime - minPing) / scalingInterval) + 1));
-		return this.gradientArray[arrIndx < this.gradientArray.length ? arrIndx : this.gradientArray.length - 1];
+		const min = this.minPing;
+		const max = this.maxPing;
+
+		if (max <= min)
+			return this.config.fastColor || ICMPPingDefaults.FastColor;
+
+		if (avgResponseTime < min)
+			avgResponseTime = min;
+		if (avgResponseTime > max)
+			avgResponseTime = max;
+
+		const range = this.config.useLogarithmicScale
+			// max > min, but when diff is 1ms we'll receive 0 as Log result
+			? Math.log2(Math.max(avgResponseTime - min, 1)) / Math.log2(Math.max(max - min, 1))
+			: (avgResponseTime - min) / (max - min);
+
+		return this.gradient.rgbAt(range).toHexString();
 	}
 
-	generateGradientArray(){
-		let gradient = tinygradient([ // Define a simple gradient between the two colors
-			{ color: this.fastColor, pos: 0 },	// Fast color first as we calculate
-			{ color: this.slowColor, pos: 1 }	// from fast->slow when selecting colors
-		]);
-		// Calculate array of points on gradient for key colors and convert them to hex
-		return gradient.hsv(this.gradientStops, this.isXClockwiseGradient).map((el) => el.toHexString());
-	}
-
-	async ping(address, count){
+	async ping(address, count) {
 		let pingCount = !!count ? count : this.pingCount;
 		let pingCountArg = this.isWindows ? '-n' : '-c';
 		return new Promise((resolve, reject) => {
 			childprocess.exec(`ping ${address} ${pingCountArg} ${pingCount}`, (err, stdout, stderr) => {
-				if (err){
+				if (err) {
 					logger.warn(`Error while executing ping: ${err}`);
-					return reject(err);
+					reject(err);
+					return;
 				}
-				let pingTimes = [], times = stdout.match(/time=\d+(\.\d+)*/g);
-				times.forEach((el) => pingTimes.push(el.replace('time=', '')));
-				let pingAverage = pingTimes.reduce((a, b) => JSON.parse(a) + JSON.parse(b), 0) / pingTimes.length;
-				if (!pingAverage)
-					return reject(`Unable to calculate ping due to invalid ping time data: ${times.replace(/(?:\r\n|\r|\n)/g, ' ')}`);
-				return resolve(pingAverage);
+				const times = stdout.match(/time[=<]\d+(\.\d+)?/g);
+				if (times == null || times.length === 0) {
+					resolve(-1);
+					return;
+				}
+				const pingTimesSum = times.map((el) => parseFloat(el.substr('time='.length))).reduce((a, b) => a + b, 0);
+
+				resolve(pingTimesSum / times.length);
 			});
 		});
 	}
 
-	static buildSignal(address, color, avgResponseTime, err) {
-		if (typeof err !== 'undefined' || avgResponseTime == null){
-			return q.Signal.error([`Error while pinging ${address}`]);
+	buildSignal(address, color, avgResponseTime, err) {
+		if (err != null || avgResponseTime < 0 || avgResponseTime == null) {
+			return new q.Signal({
+				points: [[new q.Point(color, this.config.blinkOnError ? q.Effects.BLINK : q.Effects.SET_COLOR)]],
+				name: 'ICMP Ping',
+				message: `Error while pinging ${address}`
+			});
 		}
+
 		return new q.Signal({
 			points: [[new q.Point(color)]],
 			name: 'ICMP Ping',
